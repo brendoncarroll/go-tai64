@@ -2,9 +2,6 @@ package tai64
 
 import "time"
 
-// UnixEpoch as TAI64
-const UnixEpoch = TAI64(tai64Offset + 10)
-
 // TAIFromUTC applies leap seconds to seconds
 // and returns the corresponding TAI time.
 // unixSeconds is the number of seconds since the UNIX epoch

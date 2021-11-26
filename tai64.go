@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+// UnixEpoch as TAI64
+const UnixEpoch = TAI64(tai64Offset + 10)
+
 const nano = 1e9
 
 type TAI64 uint64
@@ -40,6 +43,14 @@ func (t TAI64) TAI64NA() TAI64NA {
 	return TAI64NA{
 		Seconds: uint64(t),
 	}
+}
+
+func (t TAI64) After(u TAI64) bool {
+	return t > u
+}
+
+func (t TAI64) Before(u TAI64) bool {
+	return t < u
 }
 
 func Parse(x []byte) (TAI64, error) {
@@ -85,6 +96,20 @@ func (t TAI64N) TAI64NA() TAI64NA {
 		Seconds:     t.Seconds,
 		Nanoseconds: t.Nanoseconds,
 	}
+}
+
+func (t TAI64N) After(u TAI64N) bool {
+	return compareHierarchy(
+		func() int { return compareUint64(t.Seconds, u.Seconds) },
+		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
+	) > 0
+}
+
+func (t TAI64N) Before(u TAI64N) bool {
+	return compareHierarchy(
+		func() int { return compareUint64(t.Seconds, u.Seconds) },
+		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
+	) < 0
 }
 
 func ParseN(data []byte) (TAI64N, error) {
@@ -136,6 +161,22 @@ func (t TAI64NA) TAI64N() TAI64N {
 		Seconds:     t.Seconds,
 		Nanoseconds: t.Nanoseconds,
 	}
+}
+
+func (t TAI64NA) After(u TAI64NA) bool {
+	return compareHierarchy(
+		func() int { return compareUint64(t.Seconds, u.Seconds) },
+		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
+		func() int { return int(t.Attoseconds - u.Attoseconds) },
+	) > 0
+}
+
+func (t TAI64NA) Before(u TAI64NA) bool {
+	return compareHierarchy(
+		func() int { return compareUint64(t.Seconds, u.Seconds) },
+		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
+		func() int { return int(t.Attoseconds - u.Attoseconds) },
+	) < 0
 }
 
 func ParseNA(data []byte) (TAI64NA, error) {
@@ -195,4 +236,25 @@ func tai64(taiSecs int64) TAI64 {
 
 func taiSeconds(x TAI64) int64 {
 	return int64(x) - tai64Offset
+}
+
+func compareHierarchy(fns ...func() int) int {
+	for i := range fns {
+		c := fns[i]()
+		if c != 0 {
+			return c
+		}
+	}
+	return 0
+}
+
+func compareUint64(a, b uint64) int {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	default:
+		return 0
+	}
 }
