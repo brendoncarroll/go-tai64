@@ -19,6 +19,17 @@ func (t TAI64) Marshal() (ret [8]byte) {
 	return ret
 }
 
+func (t TAI64) MarshalBinary() ([]byte, error) {
+	data := t.Marshal()
+	return data[:], nil
+}
+
+func (t *TAI64) UnmarshalBinary(data []byte) error {
+	var err error
+	*t, err = Parse(data)
+	return err
+}
+
 func (t TAI64) TAI64N() TAI64N {
 	return TAI64N{
 		Seconds: uint64(t),
@@ -51,6 +62,17 @@ func (t TAI64N) Marshal() (ret [12]byte) {
 	binary.BigEndian.PutUint64(ret[0:8], uint64(t.Seconds))
 	binary.BigEndian.PutUint32(ret[8:12], uint32(t.Nanoseconds))
 	return ret
+}
+
+func (t TAI64N) MarshalBinary() ([]byte, error) {
+	data := t.Marshal()
+	return data[:], nil
+}
+
+func (t *TAI64N) UnmarshalBinary(data []byte) error {
+	var err error
+	*t, err = ParseN(data)
+	return err
 }
 
 // TAI64 returns a TAI64, truncating the nanoseconds.
@@ -95,6 +117,17 @@ func (t TAI64NA) Marshal() (ret [16]byte) {
 	binary.BigEndian.PutUint32(ret[8:12], uint32(t.Nanoseconds))
 	binary.BigEndian.PutUint32(ret[12:16], uint32(t.Attoseconds))
 	return ret
+}
+
+func (t TAI64NA) MarshalBinary() ([]byte, error) {
+	data := t.Marshal()
+	return data[:], nil
+}
+
+func (t *TAI64NA) UnmarshalBinary(data []byte) error {
+	var err error
+	*t, err = ParseNA(data)
+	return err
 }
 
 // TAI64N returns a TAI64N, truncating the attoseconds.
