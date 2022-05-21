@@ -23,6 +23,23 @@ func TestUnixEpoch(t *testing.T) {
 func TestMarshalParse(t *testing.T) {
 	rng := rand.New(rand.NewSource(0))
 	for i := 0; i < 100; i++ {
+		x := TAI64((rng.Int63n(1 << 62)))
+		data := x.Marshal()
+		y, err := Parse(data[:])
+		require.NoError(t, err)
+		require.Equal(t, x, y)
+	}
+	for i := 0; i < 100; i++ {
+		x := TAI64N{
+			Seconds:     uint64(rng.Int63n(1 << 62)),
+			Nanoseconds: uint32(rng.Int31n(nano)),
+		}
+		data := x.Marshal()
+		y, err := ParseN(data[:])
+		require.NoError(t, err)
+		require.Equal(t, x, y)
+	}
+	for i := 0; i < 100; i++ {
 		x := TAI64NA{
 			Seconds:     uint64(rng.Int63n(1 << 62)),
 			Nanoseconds: uint32(rng.Int31n(nano)),

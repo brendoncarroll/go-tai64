@@ -11,6 +11,12 @@ const UnixEpoch = TAI64(tai64Offset + 10)
 
 const nano = 1e9
 
+const (
+	TAI64Size   = 8
+	TAI64NSize  = 12
+	TAI64NASize = 16
+)
+
 type TAI64 uint64
 
 func (t TAI64) String() string {
@@ -54,8 +60,8 @@ func (t TAI64) Before(u TAI64) bool {
 }
 
 func Parse(x []byte) (TAI64, error) {
-	if len(x) != 8 {
-		return 0, errWrongLength("TAI64", len(x), 8)
+	if len(x) != TAI64Size {
+		return 0, errWrongLength("TAI64", len(x), TAI64Size)
 	}
 	return TAI64(binary.BigEndian.Uint64(x)), nil
 }
@@ -113,8 +119,8 @@ func (t TAI64N) Before(u TAI64N) bool {
 }
 
 func ParseN(data []byte) (TAI64N, error) {
-	if len(data) != 16 {
-		return TAI64N{}, errWrongLength("TAI64N", len(data), 12)
+	if len(data) != TAI64NSize {
+		return TAI64N{}, errWrongLength("TAI64N", len(data), TAI64NSize)
 	}
 	seconds := binary.BigEndian.Uint64(data[0:8])
 	nanos := binary.BigEndian.Uint32(data[8:12])
@@ -180,8 +186,8 @@ func (t TAI64NA) Before(u TAI64NA) bool {
 }
 
 func ParseNA(data []byte) (TAI64NA, error) {
-	if len(data) != 16 {
-		return TAI64NA{}, errWrongLength("TAI64NA", len(data), 16)
+	if len(data) != TAI64NASize {
+		return TAI64NA{}, errWrongLength("TAI64NA", len(data), TAI64NASize)
 	}
 	seconds := binary.BigEndian.Uint64(data[0:8])
 	nanos := binary.BigEndian.Uint32(data[8:12])
