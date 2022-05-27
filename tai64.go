@@ -105,17 +105,17 @@ func (t TAI64N) TAI64NA() TAI64NA {
 }
 
 func (t TAI64N) After(u TAI64N) bool {
-	return compareHierarchy(
-		func() int { return compareUint64(t.Seconds, u.Seconds) },
-		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
-	) > 0
+	if t.Seconds != u.Seconds {
+		return t.Seconds > u.Seconds
+	}
+	return t.Nanoseconds > u.Nanoseconds
 }
 
 func (t TAI64N) Before(u TAI64N) bool {
-	return compareHierarchy(
-		func() int { return compareUint64(t.Seconds, u.Seconds) },
-		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
-	) < 0
+	if t.Seconds != u.Seconds {
+		return t.Seconds < u.Seconds
+	}
+	return t.Nanoseconds < u.Nanoseconds
 }
 
 func ParseN(data []byte) (TAI64N, error) {
@@ -170,19 +170,23 @@ func (t TAI64NA) TAI64N() TAI64N {
 }
 
 func (t TAI64NA) After(u TAI64NA) bool {
-	return compareHierarchy(
-		func() int { return compareUint64(t.Seconds, u.Seconds) },
-		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
-		func() int { return int(t.Attoseconds - u.Attoseconds) },
-	) > 0
+	if t.Seconds != u.Seconds {
+		return t.Seconds > u.Seconds
+	}
+	if t.Nanoseconds != u.Nanoseconds {
+		return t.Nanoseconds > u.Nanoseconds
+	}
+	return t.Attoseconds > u.Attoseconds
 }
 
 func (t TAI64NA) Before(u TAI64NA) bool {
-	return compareHierarchy(
-		func() int { return compareUint64(t.Seconds, u.Seconds) },
-		func() int { return int(t.Nanoseconds - u.Nanoseconds) },
-		func() int { return int(t.Attoseconds - u.Attoseconds) },
-	) < 0
+	if t.Seconds != u.Seconds {
+		return t.Seconds < u.Seconds
+	}
+	if t.Nanoseconds != u.Nanoseconds {
+		return t.Nanoseconds < u.Nanoseconds
+	}
+	return t.Attoseconds < u.Attoseconds
 }
 
 func ParseNA(data []byte) (TAI64NA, error) {
@@ -242,25 +246,4 @@ func tai64(taiSecs int64) TAI64 {
 
 func taiSeconds(x TAI64) int64 {
 	return int64(x) - tai64Offset
-}
-
-func compareHierarchy(fns ...func() int) int {
-	for i := range fns {
-		c := fns[i]()
-		if c != 0 {
-			return c
-		}
-	}
-	return 0
-}
-
-func compareUint64(a, b uint64) int {
-	switch {
-	case a < b:
-		return -1
-	case a > b:
-		return 1
-	default:
-		return 0
-	}
 }
