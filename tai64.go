@@ -23,13 +23,18 @@ func (t TAI64) String() string {
 	return fmt.Sprintf("TAI64(%d)", t)
 }
 
-func (t TAI64) Marshal() (ret [8]byte) {
+func (t TAI64) Marshal() []byte {
+	x := t.Marshal8()
+	return x[:]
+}
+
+func (t TAI64) Marshal8() (ret [8]byte) {
 	binary.BigEndian.PutUint64(ret[:], uint64(t))
 	return ret
 }
 
 func (t TAI64) MarshalBinary() ([]byte, error) {
-	data := t.Marshal()
+	data := t.Marshal8()
 	return data[:], nil
 }
 
@@ -75,14 +80,19 @@ func (t TAI64N) String() string {
 	return fmt.Sprintf("TAI64N(s=%d, ns=%d)", t.Seconds, t.Nanoseconds)
 }
 
-func (t TAI64N) Marshal() (ret [12]byte) {
+func (t TAI64N) Marshal12() (ret [12]byte) {
 	binary.BigEndian.PutUint64(ret[0:8], uint64(t.Seconds))
 	binary.BigEndian.PutUint32(ret[8:12], uint32(t.Nanoseconds))
 	return ret
 }
 
+func (t TAI64N) Marshal() []byte {
+	x := t.Marshal12()
+	return x[:]
+}
+
 func (t TAI64N) MarshalBinary() ([]byte, error) {
-	data := t.Marshal()
+	data := t.Marshal12()
 	return data[:], nil
 }
 
@@ -143,15 +153,20 @@ func (t TAI64NA) String() string {
 	return fmt.Sprintf("TAI64NA(s=%d, ns=%d, as=%d)", t.Seconds, t.Nanoseconds, t.Attoseconds)
 }
 
-func (t TAI64NA) Marshal() (ret [16]byte) {
+func (t TAI64NA) Marshal16() (ret [16]byte) {
 	binary.BigEndian.PutUint64(ret[0:8], uint64(t.Seconds))
 	binary.BigEndian.PutUint32(ret[8:12], uint32(t.Nanoseconds))
 	binary.BigEndian.PutUint32(ret[12:16], uint32(t.Attoseconds))
 	return ret
 }
 
+func (t TAI64NA) Marshal() []byte {
+	x := t.Marshal16()
+	return x[:]
+}
+
 func (t TAI64NA) MarshalBinary() ([]byte, error) {
-	data := t.Marshal()
+	data := t.Marshal16()
 	return data[:], nil
 }
 
